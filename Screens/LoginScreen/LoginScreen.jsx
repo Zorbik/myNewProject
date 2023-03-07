@@ -28,6 +28,8 @@ export function LoginScreen() {
 
   const onSubmit = () => {
     console.log("formData:", formData);
+    Keyboard.dismiss();
+    setFormData(initialState);
   };
 
   return (

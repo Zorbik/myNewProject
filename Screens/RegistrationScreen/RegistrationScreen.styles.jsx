@@ -10,6 +10,7 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: "#fff",
+    justifyContent: "flex-end",
     width: "100%",
     fontFamily: "Roboto",
   },

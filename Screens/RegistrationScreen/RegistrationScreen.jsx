@@ -5,8 +5,17 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  // ScrollView,
 } from "react-native";
 import { styles } from "./RegistrationScreen.styles.jsx";
+
+const initialState = {
+  login: "",
+  email: "",
+  password: "",
+};
 
 export function RegistrationScreen() {
   const defaultBorderColor = "#E8E8E8";
@@ -18,58 +27,88 @@ export function RegistrationScreen() {
   const [emailBorderColor, setEmailBorderColor] = useState(defaultBorderColor);
   const [passwordBorderColor, setPasswordBorderColor] =
     useState(defaultBorderColor);
+  const [formData, setFormData] = useState(initialState);
+
+  const onSubmit = () => {
+    console.log("formData:", formData);
+    Keyboard.dismiss();
+    setFormData(initialState);
+  };
 
   return (
-    <ImageBackground
-      source={require("../../assets/images/background.jpg")}
-      style={styles.imageBgr}
-    >
-      <View style={styles.form}>
-        <View style={styles.avatar}>
-          <TouchableOpacity
-            style={styles.btnAdd}
-            activeOpacity={1}
-          ></TouchableOpacity>
-        </View>
-        <Text style={styles.header}>Регистрация</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={"Логин"}
-          placeholderTextColor={placeholderTextColor}
-          borderColor={loginBorderColor}
-          onFocus={() => setLoginBorderColor(accentBorderColor)}
-          onBlur={() => setLoginBorderColor(defaultBorderColor)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder={"Адрес электронной почты"}
-          placeholderTextColor={placeholderTextColor}
-          borderColor={emailBorderColor}
-          onFocus={() => setEmailBorderColor(accentBorderColor)}
-          onBlur={() => setEmailBorderColor(defaultBorderColor)}
-        />
-        <View>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      {/* <ScrollView> */}
+      <ImageBackground
+        source={require("../../assets/images/background.jpg")}
+        style={styles.imageBgr}
+      >
+        <View style={styles.form}>
+          <View style={styles.avatar}>
+            <TouchableOpacity
+              style={styles.btnAdd}
+              activeOpacity={1}
+            ></TouchableOpacity>
+          </View>
+          <Text style={styles.header}>Регистрация</Text>
           <TextInput
             style={styles.input}
-            placeholder={"Пароль"}
+            value={formData.login}
+            placeholder={"Логин"}
             placeholderTextColor={placeholderTextColor}
-            secureTextEntry={showPassword}
-            borderColor={passwordBorderColor}
-            onFocus={() => setPasswordBorderColor(accentBorderColor)}
-            onBlur={() => setPasswordBorderColor(defaultBorderColor)}
+            borderColor={loginBorderColor}
+            onChangeText={(value) =>
+              setFormData((prevState) => ({ ...prevState, login: value }))
+            }
+            onFocus={() => setLoginBorderColor(accentBorderColor)}
+            onBlur={() => setLoginBorderColor(defaultBorderColor)}
           />
-          <Text
-            style={styles.btnShwText}
-            onPress={() => setShowPassword(!showPassword)}
+          <TextInput
+            style={styles.input}
+            value={formData.email}
+            placeholder={"Адрес электронной почты"}
+            placeholderTextColor={placeholderTextColor}
+            borderColor={emailBorderColor}
+            onChangeText={(value) =>
+              setFormData((prevState) => ({ ...prevState, email: value }))
+            }
+            onFocus={() => setEmailBorderColor(accentBorderColor)}
+            onBlur={() => setEmailBorderColor(defaultBorderColor)}
+          />
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder={"Пароль"}
+              value={formData.password}
+              placeholderTextColor={placeholderTextColor}
+              secureTextEntry={showPassword}
+              borderColor={passwordBorderColor}
+              onChangeText={(value) =>
+                setFormData((prevState) => ({
+                  ...prevState,
+                  password: value,
+                }))
+              }
+              onFocus={() => setPasswordBorderColor(accentBorderColor)}
+              onBlur={() => setPasswordBorderColor(defaultBorderColor)}
+            />
+            <Text
+              style={styles.btnShwText}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "Показать" : "Скрыть"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={onSubmit}
+            style={styles.btnReg}
+            activeOpacity={0.8}
           >
-            {showPassword ? "Показать" : "Скрыть"}
-          </Text>
+            <Text style={styles.textBtn}>Зарегистрироваться</Text>
+          </TouchableOpacity>
+          <Text style={styles.text}>Уже есть аккаунт? Войти</Text>
         </View>
-        <TouchableOpacity style={styles.btnReg} activeOpacity={0.8}>
-          <Text style={styles.textBtn}>Зарегистрироваться</Text>
-        </TouchableOpacity>
-        <Text style={styles.text}>Уже есть аккаунт? Войти</Text>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+      {/* </ScrollView> */}
+    </TouchableWithoutFeedback>
   );
 }
