@@ -5,63 +5,41 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Keyboard,
-  // ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { styles } from "./RegistrationScreen.styles.jsx";
+import { styles } from "./Auth.styles.jsx";
 
 const initialState = {
-  login: "",
   email: "",
   password: "",
 };
 
-export function RegistrationScreen() {
-  const defaultBorderColor = "#E8E8E8";
-  const accentBorderColor = "#FF6C00";
-  const placeholderTextColor = "#bdbdbd";
+const defaultBorderColor = "#E8E8E8";
+const accentBorderColor = "#FF6C00";
+const placeholderTextColor = "#bdbdbd";
 
+export function LoginScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(true);
-  const [loginBorderColor, setLoginBorderColor] = useState(defaultBorderColor);
   const [emailBorderColor, setEmailBorderColor] = useState(defaultBorderColor);
   const [passwordBorderColor, setPasswordBorderColor] =
     useState(defaultBorderColor);
   const [formData, setFormData] = useState(initialState);
 
   const onSubmit = () => {
-    console.log("formData:", formData);
     Keyboard.dismiss();
     setFormData(initialState);
+    // navigation.navigate("Posts");
   };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      {/* <ScrollView> */}
       <ImageBackground
         source={require("../../assets/images/background.jpg")}
         style={styles.imageBgr}
       >
         <View style={styles.form}>
-          <View style={styles.avatar}>
-            <TouchableOpacity
-              style={styles.btnAdd}
-              activeOpacity={1}
-            ></TouchableOpacity>
-          </View>
-          <Text style={styles.header}>Регистрация</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.login}
-            placeholder={"Логин"}
-            placeholderTextColor={placeholderTextColor}
-            borderColor={loginBorderColor}
-            onChangeText={(value) =>
-              setFormData((prevState) => ({ ...prevState, login: value }))
-            }
-            onFocus={() => setLoginBorderColor(accentBorderColor)}
-            onBlur={() => setLoginBorderColor(defaultBorderColor)}
-          />
+          <Text style={styles.header}>Войти</Text>
           <TextInput
             style={styles.input}
             value={formData.email}
@@ -77,16 +55,13 @@ export function RegistrationScreen() {
           <View>
             <TextInput
               style={styles.input}
-              placeholder={"Пароль"}
               value={formData.password}
+              placeholder={"Пароль"}
               placeholderTextColor={placeholderTextColor}
               secureTextEntry={showPassword}
               borderColor={passwordBorderColor}
               onChangeText={(value) =>
-                setFormData((prevState) => ({
-                  ...prevState,
-                  password: value,
-                }))
+                setFormData((prevState) => ({ ...prevState, password: value }))
               }
               onFocus={() => setPasswordBorderColor(accentBorderColor)}
               onBlur={() => setPasswordBorderColor(defaultBorderColor)}
@@ -103,12 +78,16 @@ export function RegistrationScreen() {
             style={styles.btnReg}
             activeOpacity={0.8}
           >
-            <Text style={styles.textBtn}>Зарегистрироваться</Text>
+            <Text style={styles.textBtn}>Войти</Text>
           </TouchableOpacity>
-          <Text style={styles.text}>Уже есть аккаунт? Войти</Text>
+          <Text
+            onPress={() => navigation.navigate("Registration")}
+            style={styles.text}
+          >
+            Нет аккаунта? Зарегистрироваться
+          </Text>
         </View>
       </ImageBackground>
-      {/* </ScrollView> */}
     </TouchableWithoutFeedback>
   );
 }
