@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  // ScrollView,
 } from "react-native";
 import { styles } from "./Auth.styles.jsx";
 
@@ -37,7 +36,6 @@ export function RegistrationScreen({ navigation }) {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      {/* <ScrollView> */}
       <ImageBackground
         source={require("../../assets/images/background.jpg")}
         style={styles.imageBgr}
@@ -113,7 +111,6 @@ export function RegistrationScreen({ navigation }) {
           </Text>
         </View>
       </ImageBackground>
-      {/* </ScrollView> */}
     </TouchableWithoutFeedback>
   );
 }

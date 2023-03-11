@@ -29,7 +29,6 @@ export function LoginScreen({ navigation }) {
   const onSubmit = () => {
     Keyboard.dismiss();
     setFormData(initialState);
-    // navigation.navigate("Posts");
   };
 
   return (
