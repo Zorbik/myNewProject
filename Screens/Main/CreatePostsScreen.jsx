@@ -11,7 +11,12 @@ import {
 import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
-import { launchCameraAsync } from "expo-image-picker";
+import { launchCameraAsync, launchImageLibraryAsync } from "expo-image-picker";
+import Toast from "react-native-toast-message";
+import * as Location from "expo-location";
+import { uploadPhotoToServer } from "../../firebase/uploadPhoto";
+import { uploadPost } from "../../firebase/uploadPost";
+import { useSelector } from "react-redux";
 
 const defaultBorderColor = "#E8E8E8";
 const accentBorderColor = "#FF6C00";
@@ -20,56 +25,94 @@ const initialState = {
   photo: "",
   title: "",
   coords: "",
+  ownerId: "",
+  comments: [],
+  dateCreate: "",
+  likes: [],
 };
 
-export function CreatePostsScreen({ navigation, route }) {
+export function CreatePostsScreen({ navigation }) {
   const [formData, setFormData] = useState(initialState);
+  const [picture, setPicture] = useState("");
+
   const [titleBorderColor, setTitleBorderColor] = useState(defaultBorderColor);
   const [coordsBorderColor, setCoordsBorderColor] =
     useState(defaultBorderColor);
-
-  const takePhoto = async () => {
-    const picture = await launchCameraAsync();
-    setFormData((prevState) => ({
-      ...prevState,
-      photo: picture.assets[0].uri,
-    }));
-  };
+  const { userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (route.params) {
-      setFormData((prevState) => ({ ...prevState, coords: route.params }));
-    }
-  }, [route.params]);
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          console.log("Permission to access location was denied");
+          return;
+        }
+      } catch (error) {
+        console.log("error:", error);
+      }
+    })();
+  }, []);
 
-  const onSubmit = () => {
-    console.log("formData:", formData);
+  const takePhoto = async () => {
+    try {
+      const { assets } = await launchCameraAsync();
+
+      if (!assets[0]?.uri) return;
+
+      setPicture(assets[0]?.uri);
+
+      const loc = await Location.getCurrentPositionAsync({});
+
+      setFormData((prevState) => ({
+        ...prevState,
+        coords: loc.coords,
+      }));
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  const onSubmit = async () => {
     Keyboard.dismiss();
-    setFormData(initialState);
-    navigation.navigate("Posts");
+
+    try {
+      const photoUrl = await uploadPhotoToServer(picture);
+
+      await uploadPost({
+        ...formData,
+        photo: photoUrl,
+        ownerId: userId,
+        dateCreate: Date.now().toString(),
+      });
+
+      navigation.navigate("Posts");
+      setPicture("");
+      setFormData(initialState);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.createPost}>
         <View style={styles.photo}>
-          {formData.photo && (
-            <Image source={{ uri: formData.photo }} style={styles.img} />
-          )}
+          {picture && <Image source={{ uri: picture }} style={styles.img} />}
           <TouchableOpacity
-            style={formData.photo ? styles.btnPhotoActive : styles.btnPhoto}
+            style={picture ? styles.btnPhotoActive : styles.btnPhoto}
             onPress={takePhoto}
           >
             <MaterialIcons
               name="photo-camera"
               size={24}
-              color={formData.photo ? "#fff" : "#BDBDBD"}
+              color={picture ? "#fff" : "#BDBDBD"}
             />
           </TouchableOpacity>
         </View>
 
         <Text style={styles.text}>
-          {formData.photo ? "Редактировать фото" : "Загрузите фото"}
+          {picture ? "Редактировать фото" : "Загрузите фото"}
         </Text>
         <TextInput
           style={styles.input}
@@ -86,16 +129,17 @@ export function CreatePostsScreen({ navigation, route }) {
         <View>
           <TextInput
             style={styles.inputCoords}
-            value={formData.coords}
+            value={
+              picture
+                ? `latitude: ${formData.coords.latitude}; longitude: ${formData.coords.longitude}`
+                : ""
+            }
+            editable={false}
             placeholder={"Местность..."}
             borderBottomColor={coordsBorderColor}
             placeholderTextColor="#bdbdbd"
-            onChangeText={(value) =>
-              setFormData((prevState) => ({ ...prevState, coords: value }))
-            }
             onFocus={() => {
               setCoordsBorderColor(accentBorderColor);
-              navigation.navigate("Map");
             }}
             onBlur={() => setCoordsBorderColor(defaultBorderColor)}
           />

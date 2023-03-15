@@ -7,13 +7,22 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { launchCameraAsync } from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
+import Toast from "react-native-toast-message";
+
+import { authRegisterUser } from "../../redux/auth/authOperations.js";
 import { styles } from "./Auth.styles.jsx";
+import { uploadPhotoToServer } from "../../firebase/uploadPhoto.js";
 
 const initialState = {
   login: "",
   email: "",
   password: "",
+  avatar: "",
 };
 
 const defaultBorderColor = "#E8E8E8";
@@ -27,10 +36,39 @@ export function RegistrationScreen({ navigation }) {
   const [passwordBorderColor, setPasswordBorderColor] =
     useState(defaultBorderColor);
   const [formData, setFormData] = useState(initialState);
+  const [picture, setPicture] = useState("");
 
-  const onSubmit = () => {
+  const dispatch = useDispatch();
+
+  const takePhoto = async () => {
+    const { assets } = await launchCameraAsync();
+
+    if (!assets[0]?.uri) return;
+
+    setPicture(assets[0].uri);
+  };
+
+  const onSubmit = async () => {
     console.log("formData:", formData);
     Keyboard.dismiss();
+    if (!formData.email || !formData.password) {
+      Toast.show({
+        type: "error",
+        text1: "You should enter login and password",
+      });
+      return;
+    }
+
+    const photoUrl = await uploadPhotoToServer(picture);
+
+    dispatch(
+      authRegisterUser({
+        ...formData,
+        login: formData.login.trim(),
+        avatar: photoUrl,
+      })
+    );
+
     setFormData(initialState);
   };
 
@@ -42,10 +80,24 @@ export function RegistrationScreen({ navigation }) {
       >
         <View style={styles.form}>
           <View style={styles.avatar}>
-            <TouchableOpacity
-              style={styles.btnAdd}
-              activeOpacity={1}
-            ></TouchableOpacity>
+            {picture && <Image source={{ uri: picture }} style={styles.img} />}
+            {picture ? (
+              <TouchableOpacity
+                style={picture ? styles.btnAddActive : styles.btnAdd}
+                activeOpacity={1}
+                onPress={() => setPicture("")}
+              >
+                <Ionicons name="close-outline" size={24} color="#E8E8E8" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={picture ? styles.btnAddActive : styles.btnAdd}
+                activeOpacity={1}
+                onPress={takePhoto}
+              >
+                <Ionicons size={24} name="add-outline" color="#FF6C00" />
+              </TouchableOpacity>
+            )}
           </View>
           <Text style={styles.header}>Регистрация</Text>
           <TextInput
@@ -55,7 +107,10 @@ export function RegistrationScreen({ navigation }) {
             placeholderTextColor={placeholderTextColor}
             borderColor={loginBorderColor}
             onChangeText={(value) =>
-              setFormData((prevState) => ({ ...prevState, login: value }))
+              setFormData((prevState) => ({
+                ...prevState,
+                login: value,
+              }))
             }
             onFocus={() => setLoginBorderColor(accentBorderColor)}
             onBlur={() => setLoginBorderColor(defaultBorderColor)}
@@ -67,7 +122,10 @@ export function RegistrationScreen({ navigation }) {
             placeholderTextColor={placeholderTextColor}
             borderColor={emailBorderColor}
             onChangeText={(value) =>
-              setFormData((prevState) => ({ ...prevState, email: value }))
+              setFormData((prevState) => ({
+                ...prevState,
+                email: value.trim(),
+              }))
             }
             onFocus={() => setEmailBorderColor(accentBorderColor)}
             onBlur={() => setEmailBorderColor(defaultBorderColor)}

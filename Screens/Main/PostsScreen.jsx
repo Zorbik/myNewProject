@@ -1,44 +1,86 @@
 import { useEffect, useState } from "react";
 import { FlatList, Image, Text, View } from "react-native";
 import { StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
-export function PostsScreen({ route }) {
+import { db } from "../../firebase/config.js";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+
+import { PostItem } from "../../components/PostItem.jsx";
+
+export function PostsScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
 
+  const { avatar, email, login } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    // if (route.params) {
-    setPosts((prevState) => [...prevState, route.params]);
-    console.log("posts:", posts);
-    // }
-  }, [route.params]);
+    const q = query(collection(db, "posts"), orderBy("dateCreate", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const allPosts = [];
+      querySnapshot.forEach((post) => {
+        allPosts.push({ ...post.data(), postId: post.id });
+      });
+      setPosts(allPosts);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
-      <View>
-        {/* <Image source={{ uri: route.params.photo }} /> */}
-        <Text>sdfg</Text>
-        <Text>ddfg</Text>
+      <View style={styles.userContainer}>
+        {avatar ? (
+          <Image style={styles.img} source={{ uri: avatar }} />
+        ) : (
+          <Ionicons name="ios-person-outline" size={60} color="#bdbdbd" />
+        )}
+        <View style={styles.textContainer}>
+          <Text style={styles.textName}>{login ?? login}</Text>
+          <Text style={styles.textEmail}>{email ?? email}</Text>
+        </View>
       </View>
-      <View style={styles.postList}>
-        {/* {posts.length ? (
+      <View>
+        {posts.length ? (
           <FlatList
             data={posts}
-            keyExtractor={(index) => index.toString()}
+            keyExtractor={(item) => item.postId}
             renderItem={(item) => (
-              <View style={styles.postItem}>
-                <Image source={{ uri: item.photo }} />
-              </View>
+              <PostItem post={item} navigation={navigation} />
             )}
           />
         ) : (
           <Text></Text>
-        )} */}
+        )}
       </View>
     </View>
   );
 }
 
 export const styles = StyleSheet.create({
-  container: { paddingHorizontal: 16, paddingVertical: 32 },
-  postList: {},
-  postItem: {},
+  container: { paddingHorizontal: 16, paddingBottom: 195 },
+  userContainer: {
+    flexDirection: "row",
+    marginTop: 32,
+  },
+  img: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  textContainer: { justifyContent: "center" },
+  textName: {
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 16,
+    color: "#212121",
+  },
+  textEmail: {
+    fontSize: 11,
+    fontWeight: "400",
+    lineHeight: 13,
+    color: "#212121CC",
+  },
 });

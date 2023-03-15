@@ -22,6 +22,13 @@ export const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     alignSelf: "center",
   },
+  img: {
+    borderRadius: 16,
+    width: 120,
+    height: 120,
+
+    alignSelf: "center",
+  },
   btnAdd: {
     position: "absolute",
     bottom: 14,
@@ -32,6 +39,17 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#FF6C00",
+  },
+  btnAddActive: {
+    position: "absolute",
+    bottom: 14,
+    right: -12.5,
+    width: 25,
+    height: 25,
+    borderRadius: 25,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
   },
   btnReg: {
     height: 51,

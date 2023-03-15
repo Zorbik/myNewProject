@@ -8,6 +8,10 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
+
+import { authSignInUser } from "../../redux/auth/authOperations.js";
 import { styles } from "./Auth.styles.jsx";
 
 const initialState = {
@@ -26,8 +30,20 @@ export function LoginScreen({ navigation }) {
     useState(defaultBorderColor);
   const [formData, setFormData] = useState(initialState);
 
+  const dispatch = useDispatch();
+
   const onSubmit = () => {
     Keyboard.dismiss();
+
+    if (!formData.email || !formData.password) {
+      Toast.show({
+        type: "error",
+        text1: "You should enter login and password",
+      });
+      return;
+    }
+    dispatch(authSignInUser(formData));
+
     setFormData(initialState);
   };
 
