@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { launchCameraAsync } from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import * as Permissions from "expo-permissions";
 
 import { authRegisterUser } from "../../redux/auth/authOperations.js";
 import { styles } from "./Auth.styles.jsx";
@@ -41,15 +42,22 @@ export function RegistrationScreen({ navigation }) {
   const dispatch = useDispatch();
 
   const takePhoto = async () => {
-    const { assets } = await launchCameraAsync();
+    try {
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      if (status !== "granted") {
+        return console.log("Permission not granted");
+      }
+      const { assets } = await launchCameraAsync();
 
-    if (!assets[0]?.uri) return;
+      if (!assets[0]?.uri) return;
 
-    setPicture(assets[0].uri);
+      setPicture(assets[0].uri);
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   const onSubmit = async () => {
-    console.log("formData:", formData);
     Keyboard.dismiss();
     if (!formData.email || !formData.password) {
       Toast.show({
@@ -59,15 +67,19 @@ export function RegistrationScreen({ navigation }) {
       return;
     }
 
-    const photoUrl = await uploadPhotoToServer(picture);
+    try {
+      const photoUrl = await uploadPhotoToServer(picture);
 
-    dispatch(
-      authRegisterUser({
-        ...formData,
-        login: formData.login.trim(),
-        avatar: photoUrl,
-      })
-    );
+      dispatch(
+        authRegisterUser({
+          ...formData,
+          login: formData.login.trim(),
+          avatar: photoUrl,
+        })
+      );
+    } catch (error) {
+      console.log("error:", error);
+    }
 
     setFormData(initialState);
   };

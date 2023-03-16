@@ -39,10 +39,14 @@ export const ProfilePostItem = ({ navigation, post }) => {
   }, [likes]);
 
   const getTextLocation = async () => {
-    const location = await coordsToWords(latitude, longitude);
+    try {
+      const location = await coordsToWords(latitude, longitude);
 
-    const textLocation = `${location[0].country}`;
-    return textLocation;
+      const textLocation = `${location[0].country}`;
+      return textLocation;
+    } catch (error) {
+      console.log("error:", error);
+    }
   };
 
   const onLike = async () => {

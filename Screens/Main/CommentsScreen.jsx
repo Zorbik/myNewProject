@@ -52,9 +52,13 @@ export function CommentsScreen({ route }) {
 
     comments.push(commentObj);
 
-    await updateDoc(doc(db, "posts", postId), {
-      comments,
-    });
+    try {
+      await updateDoc(doc(db, "posts", postId), {
+        comments,
+      });
+    } catch (error) {
+      console.log("error:", error);
+    }
 
     setComment("");
   };

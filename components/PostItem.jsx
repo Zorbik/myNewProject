@@ -41,13 +41,17 @@ export const PostItem = ({ navigation, post }) => {
   }, [likes]);
 
   const getTextLocation = async () => {
-    const loc = await coordsToWords(latitude, longitude);
+    try {
+      const loc = await coordsToWords(latitude, longitude);
 
-    const textLocation = `${loc[0].city}, ${loc[0].region}`;
-    if (textLocation.length > 25) {
-      textLocation = textLocation.slice(0, 25) + "...";
+      const textLocation = `${loc[0].city}, ${loc[0].region}`;
+      if (textLocation.length > 25) {
+        textLocation = textLocation.slice(0, 25) + "...";
+      }
+      return textLocation;
+    } catch (error) {
+      console.log("error:", error);
     }
-    return textLocation;
   };
 
   const onLike = async () => {

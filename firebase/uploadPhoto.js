@@ -1,7 +1,7 @@
 import uuid from "react-native-uuid";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import { app, storage } from "./config";
+import { storage } from "./config";
 
 export const uploadPhotoToServer = async (photo) => {
   try {

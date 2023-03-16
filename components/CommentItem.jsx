@@ -8,8 +8,6 @@ export const CommentItem = ({ comment }) => {
   const { userId: comUserId, text, userAva, createDate } = comment.item;
   const { userId } = useSelector((state) => state.auth);
 
-  useEffect(() => {}, [styles]);
-
   return (
     <View
       style={comUserId === userId ? userStyles.container : styles.container}

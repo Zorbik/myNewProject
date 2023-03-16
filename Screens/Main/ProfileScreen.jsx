@@ -66,7 +66,6 @@ export function ProfileScreen({ navigation }) {
             <TouchableOpacity
               style={picture ? styles.btnAddActive : styles.btnAdd}
               activeOpacity={1}
-              onPress={takePhoto}
             >
               <Ionicons size={24} name="add-outline" color="#FF6C00" />
             </TouchableOpacity>

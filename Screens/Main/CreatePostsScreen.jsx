@@ -12,6 +12,7 @@ import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { launchCameraAsync, launchImageLibraryAsync } from "expo-image-picker";
+import * as Permissions from "expo-permissions";
 import Toast from "react-native-toast-message";
 import * as Location from "expo-location";
 import { uploadPhotoToServer } from "../../firebase/uploadPhoto";
@@ -56,6 +57,11 @@ export function CreatePostsScreen({ navigation }) {
 
   const takePhoto = async () => {
     try {
+      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      if (status !== "granted") {
+        return console.log("Permission not granted");
+      }
+
       const { assets } = await launchCameraAsync();
 
       if (!assets[0]?.uri) return;
