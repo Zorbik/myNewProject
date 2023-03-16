@@ -11,7 +11,8 @@ import {
 import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
-import { launchCameraAsync, launchImageLibraryAsync } from "expo-image-picker";
+import { launchCameraAsync } from "expo-image-picker";
+import { Camera } from "expo-camera";
 import * as Permissions from "expo-permissions";
 import Toast from "react-native-toast-message";
 import * as Location from "expo-location";
@@ -49,15 +50,21 @@ export function CreatePostsScreen({ navigation }) {
           console.log("Permission to access location was denied");
           return;
         }
+        const loc = await Location.getCurrentPositionAsync({});
+
+        setFormData((prevState) => ({
+          ...prevState,
+          coords: loc.coords,
+        }));
       } catch (error) {
         console.log("error:", error);
       }
     })();
-  }, []);
+  }, [picture]);
 
   const takePhoto = async () => {
     try {
-      const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
       if (status !== "granted") {
         return console.log("Permission not granted");
       }
@@ -67,13 +74,6 @@ export function CreatePostsScreen({ navigation }) {
       if (!assets[0]?.uri) return;
 
       setPicture(assets[0]?.uri);
-
-      const loc = await Location.getCurrentPositionAsync({});
-
-      setFormData((prevState) => ({
-        ...prevState,
-        coords: loc.coords,
-      }));
     } catch (error) {
       console.log("error:", error);
     }
